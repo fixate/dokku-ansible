@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+set -eo pipefail
+
+git_archive_all() {
+  REPO=$1; REV=$2
+  TMP_WORK_DIR=$(mktemp -d)
+  chmod 755 $TMP_WORK_DIR
+  unset GIT_DIR GIT_WORK_TREE
+  git clone $REPO $TMP_WORK_DIR > /dev/null
+  pushd $TMP_WORK_DIR > /dev/null
+  git config advice.detachedHead false
+  git checkout $REV > /dev/null
+  git submodule update --init --recursive > /dev/null
+  find -name .git -prune -exec rm -rf {} \; > /dev/null
+  tar c .
+  popd > /dev/null
+  rm -rf $TMP_WORK_DIR > /dev/null
+}
+
+case "$1" in
+  ansible:deploy)
+    APP="$2"; IMAGE="dokku/$APP"
+    REPO=$3
+    REFNAME=$4 || 'master'
+
+    if [[ -z $APP ]]; then
+      echo "Please specify an app to deploy"
+      exit 1
+    fi
+
+    if [[ -z $REPO ]]; then
+      echo "Please specify a repository to use"
+      exit 1
+    fi
+
+    pushd $DOKKU_ROOT > /dev/null
+    REPO_PATH=$DOKKU_ROOT/${APP}_repo
+
+    if [[ ! -d $REPO_PATH/refs ]]; then
+      git clone --bare $REPO $REPO_PATH > /dev/null
+    fi
+
+    cd $REPO_PATH
+    git fetch origin $REFNAME:$REFNAME
+
+    COMMIT_ID=$(git rev-parse $REFNAME)
+    git_archive_all $REPO_PATH $COMMIT_ID | dokku receive $APP | sed -u "s/^/"$'\e[1G'"/"
+
+    ;;
+
+  ansible:restart_app)
+    APP="$2";
+
+    if [[ -z $APP ]]; then
+      echo "Please specify an app to deploy"
+      exit 1
+    fi
+
+    echo "-----> Releasing $APP ..."
+    dokku release $APP
+    echo "-----> Release complete!"
+    echo "-----> Deploying $APP ..."
+    dokku deploy $APP
+    echo "-----> Deploy complete!"
+
+    ;;
+
+  help)
+    cat
+    ;;
+
+esac
