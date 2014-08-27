@@ -8,6 +8,12 @@ git_archive_all() {
   unset GIT_DIR GIT_WORK_TREE
   git clone $REPO $TMP_WORK_DIR > /dev/null
   pushd $TMP_WORK_DIR > /dev/null
+
+  # create a file called {{ app }}_ENV to have environment included during build
+  if [[ -f $DOKKU_ROOT/${APP}_ENV ]]; then
+    cp -p $DOKKU_ROOT/${APP}_ENV $TMP_WORK_DIR/.env
+  fi
+
   git config advice.detachedHead false
   git checkout $REV > /dev/null
   git submodule update --init --recursive > /dev/null
