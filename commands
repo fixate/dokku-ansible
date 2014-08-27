@@ -45,6 +45,9 @@ case "$1" in
 
     if [[ ! -d $REPO_PATH/refs ]]; then
       git clone --bare $REPO $REPO_PATH > /dev/null
+    fi
+
+    if [[ ! -d $APP_PATH/refs ]]; then
       git clone --bare $REPO_PATH $APP_PATH > /dev/null
     fi
 
