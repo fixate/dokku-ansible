@@ -14,6 +14,12 @@ dokku plugins-install
 
 #### Your deploy step:
 
+Too 'add' the application (usefull if you want to put ssl certificates in place before deploying)
+
+`dokku ansible:init [app_name] [scm_repository] (branch/ref or defaults to master)`
+
+deploy (calls ansible:init)
+
 `dokku ansible:deploy [app_name] [scm_repository] (branch/ref or defaults to master)`
 
 You will need to allow add github/bitbucket server key to known_hosts on the deployment target.

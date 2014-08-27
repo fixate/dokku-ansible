@@ -24,6 +24,34 @@ git_archive_all() {
 }
 
 case "$1" in
+  ansible:init)
+    APP="$2"; IMAGE="dokku/$APP"
+    REPO=$3
+    REFNAME=$4 || 'master'
+
+    if [[ -z $APP ]]; then
+      echo "Please specify an app to deploy"
+      exit 1
+    fi
+
+    if [[ -z $REPO ]]; then
+      echo "Please specify a repository to use"
+      exit 1
+    fi
+
+    APP_PATH=$DOKKU_ROOT/$APP
+    REPO_PATH=$DOKKU_ROOT/${APP}_repo
+
+    if [[ ! -d $REPO_PATH/refs ]]; then
+      git clone --bare $REPO $REPO_PATH > /dev/null
+    fi
+
+    if [[ ! -d $APP_PATH/refs ]]; then
+      git clone --bare $REPO_PATH $APP_PATH > /dev/null
+    fi
+
+    ;;
+
   ansible:deploy)
     APP="$2"; IMAGE="dokku/$APP"
     REPO=$3
@@ -40,16 +68,9 @@ case "$1" in
     fi
 
     pushd $DOKKU_ROOT > /dev/null
-    APP_PATH=$DOKKU_ROOT/$APP
     REPO_PATH=$DOKKU_ROOT/${APP}_repo
 
-    if [[ ! -d $REPO_PATH/refs ]]; then
-      git clone --bare $REPO $REPO_PATH > /dev/null
-    fi
-
-    if [[ ! -d $APP_PATH/refs ]]; then
-      git clone --bare $REPO_PATH $APP_PATH > /dev/null
-    fi
+    dokku ansible:init $APP $REPO
 
     cd $REPO_PATH
     git fetch origin $REFNAME:$REFNAME
