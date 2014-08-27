@@ -14,7 +14,7 @@ dokku plugins-install
 
 #### Your deploy step:
 
-`dokku ansible:deploy [app_name] [scm_repository]`
+`dokku ansible:deploy [app_name] [scm_repository] (branch/ref or defaults to master)`
 
 You will need to allow add github/bitbucket server key to known_hosts on the deployment target.
 Something like:
