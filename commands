@@ -24,7 +24,7 @@ git_archive_all() {
 }
 
 case "$1" in
-  ansible:init)
+  repo:init)
     APP="$2"; IMAGE="dokku/$APP"
     REPO=$3
     REFNAME=$4 || 'master'
@@ -52,7 +52,7 @@ case "$1" in
 
     ;;
 
-  ansible:deploy)
+  repo:deploy)
     APP="$2"; IMAGE="dokku/$APP"
     REPO=$3
     REFNAME=$4 || 'master'
@@ -70,7 +70,7 @@ case "$1" in
     pushd $DOKKU_ROOT > /dev/null
     REPO_PATH=$DOKKU_ROOT/${APP}_repo
 
-    dokku ansible:init $APP $REPO
+    dokku repo:init $APP $REPO
 
     cd $REPO_PATH
     git fetch origin $REFNAME:$REFNAME
@@ -80,7 +80,7 @@ case "$1" in
 
     ;;
 
-  ansible:restart_app)
+  repo:restart_app)
     APP="$2";
 
     if [[ -z $APP ]]; then
@@ -93,7 +93,7 @@ case "$1" in
     echo "-----> Release complete!"
     echo "-----> Deploying $APP ..."
     dokku deploy $APP
-    echo "-----> Deploy complete!"
+    echo "-----> Deploy complete!"ans
 
     ;;
 
