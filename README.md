@@ -1,4 +1,4 @@
-dokku-ansible
+dokku-repodeploy
 =============
 
 Some useful commands for dokku to use with your continuous integration. Basically gives you a command which updates a bare repository on the server and pushes that to dokku:receive just like the dokku git plugin does.
